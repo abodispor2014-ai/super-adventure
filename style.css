@@ -1,0 +1,581 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Tahoma, sans-serif;
+    background: #111;
+}
+
+body {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#game {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #60c7f5;
+}
+
+#gameCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    z-index: 20;
+    pointer-events: none;
+}
+
+.hud-box {
+    padding: 9px 13px;
+    min-width: 80px;
+
+    color: white;
+    background: rgba(0, 0, 0, 0.55);
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+
+    text-shadow: 2px 2px 2px #000;
+
+    backdrop-filter: blur(6px);
+}
+
+.hud-box span {
+    color: #ffdd36;
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+#message {
+    position: absolute;
+
+    top: 85px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 30;
+
+    padding: 12px 25px;
+
+    color: white;
+
+    background: rgba(0, 0, 0, 0.76);
+
+    border-radius: 14px;
+
+    font-size: 21px;
+    font-weight: bold;
+
+    text-align: center;
+
+    display: none;
+
+    white-space: nowrap;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================
+   SCREENS
+========================= */
+
+.screen {
+    position: absolute;
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            rgba(10, 45, 90, 0.45),
+            rgba(0, 0, 0, 0.7)
+        );
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================
+   MENU
+========================= */
+
+.menu-box {
+    width: min(92vw, 540px);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    padding: 30px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 34, 63, 0.97),
+            rgba(7, 14, 30, 0.97)
+        );
+
+    border:
+        2px solid rgba(255, 255, 255, 0.15);
+
+    border-radius: 25px;
+
+    text-align: center;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.6);
+
+    backdrop-filter: blur(10px);
+}
+
+.menu-box h1 {
+    margin-bottom: 10px;
+
+    font-size: clamp(34px, 7vw, 58px);
+
+    font-weight: 900;
+
+    color: #ffdf3d;
+
+    text-shadow:
+        0 4px 0 #a56700,
+        0 7px 18px rgba(0, 0, 0, 0.55);
+}
+
+.menu-box h2 {
+    margin-bottom: 18px;
+
+    font-size: 30px;
+
+    color: #fff;
+}
+
+.menu-box p {
+    margin: 10px 0;
+
+    color: #d9e9ff;
+
+    font-size: 17px;
+
+    line-height: 1.7;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+button {
+    border: none;
+    outline: none;
+
+    font-family: inherit;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            #328cff,
+            #1462cc
+        );
+
+    padding: 13px 20px;
+
+    margin: 7px;
+
+    border-radius: 13px;
+
+    font-size: 17px;
+
+    box-shadow:
+        0 5px 0 #0a3f88,
+        0 8px 18px rgba(0, 0, 0, 0.25);
+
+    transition:
+        transform 0.1s,
+        filter 0.15s;
+}
+
+button:hover {
+    filter: brightness(1.12);
+}
+
+button:active {
+    transform: translateY(4px);
+
+    box-shadow:
+        0 1px 0 #0a3f88;
+}
+
+/* =========================
+   MAIN BUTTON
+========================= */
+
+#startGame {
+    width: 90%;
+
+    margin-top: 18px;
+
+    font-size: 21px;
+
+    background:
+        linear-gradient(
+            #32d86d,
+            #159548
+        );
+
+    box-shadow:
+        0 5px 0 #0b622f;
+}
+
+/* =========================
+   LEVEL MAP
+========================= */
+
+#levelList {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 10px;
+
+    margin: 20px 0;
+}
+
+.level-button {
+    min-height: 75px;
+
+    margin: 0;
+
+    padding: 8px;
+
+    font-size: 14px;
+
+    line-height: 1.3;
+
+    background:
+        linear-gradient(
+            #3bad6b,
+            #176f42
+        );
+
+    box-shadow:
+        0 5px 0 #0b4c2c;
+}
+
+.level-button.locked {
+    background:
+        linear-gradient(
+            #707070,
+            #414141
+        );
+
+    box-shadow:
+        0 5px 0 #292929;
+
+    cursor: not-allowed;
+}
+
+.level-button.done {
+    background:
+        linear-gradient(
+            #25c76a,
+            #108045
+        );
+}
+
+/* =========================
+   SHOP
+========================= */
+
+.shop-item {
+    width: 90%;
+
+    display: block;
+
+    margin: 10px auto;
+
+    background:
+        linear-gradient(
+            #a64dff,
+            #6421a8
+        );
+
+    box-shadow:
+        0 5px 0 #3b1264;
+}
+
+/* =========================
+   BACK BUTTON
+========================= */
+
+.backButton {
+    background:
+        linear-gradient(
+            #777,
+            #444
+        );
+
+    box-shadow:
+        0 5px 0 #282828;
+}
+
+/* =========================
+   GAME OVER
+========================= */
+
+#gameOverTitle {
+    color: #ff5555;
+}
+
+/* =========================
+   WIN
+========================= */
+
+#winScreen h1 {
+    color: #ffe044;
+
+    animation:
+        winPulse 0.8s infinite alternate;
+}
+
+@keyframes winPulse {
+
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.08);
+    }
+}
+
+/* =========================
+   MOBILE CONTROLS
+========================= */
+
+#mobileControls {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    bottom: 18px;
+
+    z-index: 40;
+
+    display: flex;
+
+    justify-content: space-between;
+    align-items: flex-end;
+
+    padding: 0 18px;
+
+    pointer-events: none;
+}
+
+.control-left,
+.control-right {
+    display: flex;
+
+    gap: 12px;
+
+    pointer-events: none;
+}
+
+.control-button {
+    width: 68px;
+    height: 68px;
+
+    margin: 0;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+
+    background:
+        rgba(0, 0, 0, 0.58);
+
+    color: white;
+
+    border:
+        2px solid rgba(255, 255, 255, 0.45);
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.3);
+
+    pointer-events: auto;
+
+    touch-action: none;
+
+    backdrop-filter: blur(5px);
+}
+
+.control-button:active {
+    transform: scale(0.9);
+}
+
+.control-button.jump {
+    background:
+        rgba(35, 125, 255, 0.75);
+}
+
+.control-button.run {
+    background:
+        rgba(255, 165, 0, 0.8);
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+.menu-box::-webkit-scrollbar {
+    width: 7px;
+}
+
+.menu-box::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+
+.menu-box::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 800px) {
+
+    .hud-box {
+        min-width: 68px;
+        padding: 7px 9px;
+        font-size: 13px;
+    }
+
+    #levelList {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .menu-box {
+        padding: 22px;
+    }
+
+    .control-button {
+        width: 62px;
+        height: 62px;
+        font-size: 25px;
+    }
+}
+
+/* =========================
+   PHONE
+========================= */
+
+@media (max-width: 500px) {
+
+    #hud {
+        top: 7px;
+        gap: 5px;
+    }
+
+    .hud-box {
+        min-width: auto;
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    #message {
+        top: 70px;
+        font-size: 16px;
+        padding: 9px 15px;
+        max-width: 90%;
+        white-space: normal;
+    }
+
+    #levelList {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .control-button {
+        width: 58px;
+        height: 58px;
+        font-size: 23px;
+    }
+
+    #mobileControls {
+        bottom: 10px;
+        padding: 0 10px;
+    }
+
+    .menu-box h1 {
+        font-size: 31px;
+    }
+
+    .menu-box h2 {
+        font-size: 25px;
+    }
+}
+
+
