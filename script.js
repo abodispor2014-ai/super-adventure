@@ -1,9 +1,10 @@
 "use strict";
 
 /* =========================================================
-   SUPER ADVENTURE 3.0
-   SCRIPT.JS - نسخة مصححة وكاملة
+   SUPER ADVENTURE 4.0
+   شخصيات أصلية + تحكم كمبيوتر وهاتف
 ========================================================= */
+
 
 /* =========================================================
    CANVAS
@@ -19,6 +20,7 @@ let DPR = Math.min(window.devicePixelRatio || 1, 2);
 function resizeCanvas() {
     VIEW_W = window.innerWidth;
     VIEW_H = window.innerHeight;
+
     DPR = Math.min(window.devicePixelRatio || 1, 2);
 
     canvas.width = VIEW_W * DPR;
@@ -38,6 +40,10 @@ function resizeCanvas() {
 }
 
 window.addEventListener("resize", resizeCanvas);
+window.addEventListener("orientationchange", () => {
+    setTimeout(resizeCanvas, 100);
+});
+
 resizeCanvas();
 
 
@@ -93,10 +99,334 @@ const ui = {
 
 
 /* =========================================================
-   SAVE
+   ORIGINAL CHARACTER IMAGES
+   لا تحتاج ملفات صور خارجية
 ========================================================= */
 
-const SAVE_KEY = "super_adventure_3_save";
+function makeImage(svg) {
+    const image = new Image();
+
+    image.src =
+        "data:image/svg+xml;charset=utf-8," +
+        encodeURIComponent(svg);
+
+    return image;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+const HERO_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="120" height="150" viewBox="0 0 120 150">
+
+    <!-- shadow -->
+    <ellipse cx="60" cy="143"
+             rx="35" ry="6"
+             fill="rgba(0,0,0,.25)"/>
+
+    <!-- legs -->
+    <rect x="38" y="105"
+          width="18" height="30"
+          rx="8"
+          fill="#263b8f"/>
+
+    <rect x="65" y="105"
+          width="18" height="30"
+          rx="8"
+          fill="#263b8f"/>
+
+    <!-- shoes -->
+    <ellipse cx="43" cy="137"
+             rx="18" ry="8"
+             fill="#39251d"/>
+
+    <ellipse cx="78" cy="137"
+             rx="18" ry="8"
+             fill="#39251d"/>
+
+    <!-- body -->
+    <rect x="30" y="58"
+          width="60" height="57"
+          rx="18"
+          fill="#2877d8"/>
+
+    <!-- shirt -->
+    <path d="M32 68 Q60 82 88 68 L88 106 Q60 118 32 106Z"
+          fill="#2456b8"/>
+
+    <!-- arms -->
+    <circle cx="27" cy="78"
+            r="12"
+            fill="#f1bd91"/>
+
+    <circle cx="93" cy="78"
+            r="12"
+            fill="#f1bd91"/>
+
+    <!-- neck -->
+    <rect x="48" y="50"
+          width="24" height="18"
+          rx="8"
+          fill="#e7ad80"/>
+
+    <!-- face -->
+    <circle cx="60" cy="39"
+            r="31"
+            fill="#f1bd91"/>
+
+    <!-- hair -->
+    <path d="M31 39 Q32 7 61 8
+             Q92 8 91 40
+             Q80 24 67 25
+             Q48 17 31 39Z"
+          fill="#35231c"/>
+
+    <!-- hair sides -->
+    <path d="M32 34 Q24 45 34 57"
+          stroke="#35231c"
+          stroke-width="9"
+          fill="none"/>
+
+    <!-- eyes -->
+    <ellipse cx="48" cy="40"
+             rx="5" ry="7"
+             fill="#171717"/>
+
+    <ellipse cx="73" cy="40"
+             rx="5" ry="7"
+             fill="#171717"/>
+
+    <!-- eyes shine -->
+    <circle cx="50" cy="38"
+            r="2"
+            fill="white"/>
+
+    <circle cx="75" cy="38"
+            r="2"
+            fill="white"/>
+
+    <!-- smile -->
+    <path d="M48 52 Q60 62 73 52"
+          stroke="#7d3828"
+          stroke-width="4"
+          fill="none"
+          stroke-linecap="round"/>
+
+    <!-- headband -->
+    <path d="M31 26 Q60 8 89 26"
+          stroke="#17a6e8"
+          stroke-width="10"
+          fill="none"/>
+
+    <!-- badge -->
+    <circle cx="60" cy="75"
+            r="9"
+            fill="#ffd83d"/>
+
+    <path d="M60 68 L63 74 L70 75
+             L65 80 L66 87
+             L60 83 L54 87
+             L55 80 L50 75
+             L57 74Z"
+          fill="#fff"/>
+</svg>
+`;
+
+const heroImage = makeImage(HERO_SVG);
+
+
+/* =========================
+   ENEMY
+========================= */
+
+const ENEMY_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="110" height="100" viewBox="0 0 110 100">
+
+    <ellipse cx="55" cy="92"
+             rx="37" ry="6"
+             fill="rgba(0,0,0,.25)"/>
+
+    <!-- body -->
+    <path d="M17 72
+             Q15 28 55 22
+             Q95 28 93 72
+             Q85 88 55 88
+             Q25 88 17 72Z"
+          fill="#7b36c9"/>
+
+    <!-- horns -->
+    <path d="M25 30 L15 7 L38 22Z"
+          fill="#f04d55"/>
+
+    <path d="M85 30 L95 7 L72 22Z"
+          fill="#f04d55"/>
+
+    <!-- eyes -->
+    <ellipse cx="40" cy="49"
+             rx="11" ry="14"
+             fill="white"/>
+
+    <ellipse cx="70" cy="49"
+             rx="11" ry="14"
+             fill="white"/>
+
+    <circle cx="40" cy="51"
+            r="5"
+            fill="#111"/>
+
+    <circle cx="70" cy="51"
+            r="5"
+            fill="#111"/>
+
+    <!-- mouth -->
+    <path d="M34 68 Q55 82 76 68"
+          stroke="#171717"
+          stroke-width="6"
+          fill="none"
+          stroke-linecap="round"/>
+
+    <!-- teeth -->
+    <path d="M43 71 L47 78 L52 72
+             L57 80 L62 72 L67 77"
+          fill="white"/>
+</svg>
+`;
+
+const enemyImage = makeImage(ENEMY_SVG);
+
+
+/* =========================
+   FLYING ENEMY
+========================= */
+
+const FLY_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="130" height="90" viewBox="0 0 130 90">
+
+    <!-- wings -->
+    <ellipse cx="25" cy="45"
+             rx="27" ry="15"
+             fill="#f4f4ff"/>
+
+    <ellipse cx="105" cy="45"
+             rx="27" ry="15"
+             fill="#f4f4ff"/>
+
+    <!-- body -->
+    <ellipse cx="65" cy="48"
+             rx="34" ry="28"
+             fill="#e84567"/>
+
+    <!-- eyes -->
+    <circle cx="53" cy="45"
+            r="7"
+            fill="white"/>
+
+    <circle cx="77" cy="45"
+            r="7"
+            fill="white"/>
+
+    <circle cx="53" cy="46"
+            r="3"
+            fill="#111"/>
+
+    <circle cx="77" cy="46"
+            r="3"
+            fill="#111"/>
+
+    <!-- mouth -->
+    <path d="M55 62 Q65 69 75 62"
+          stroke="#111"
+          stroke-width="4"
+          fill="none"/>
+</svg>
+`;
+
+const flyImage = makeImage(FLY_SVG);
+
+
+/* =========================
+   BOSS
+========================= */
+
+const BOSS_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="150" height="170" viewBox="0 0 150 170">
+
+    <ellipse cx="75" cy="160"
+             rx="50" ry="8"
+             fill="rgba(0,0,0,.3)"/>
+
+    <!-- horns -->
+    <path d="M40 42 L15 5 L58 28Z"
+          fill="#ffb52e"/>
+
+    <path d="M110 42 L135 5 L92 28Z"
+          fill="#ffb52e"/>
+
+    <!-- body -->
+    <rect x="27" y="35"
+          width="96"
+          height="115"
+          rx="30"
+          fill="#8d1e35"/>
+
+    <!-- armor -->
+    <path d="M33 77 L75 57 L117 77
+             L110 130 L75 145
+             L40 130Z"
+          fill="#4b2533"/>
+
+    <!-- eyes -->
+    <circle cx="53" cy="66"
+            r="12"
+            fill="#ffdf44"/>
+
+    <circle cx="97" cy="66"
+            r="12"
+            fill="#ffdf44"/>
+
+    <circle cx="53" cy="66"
+            r="5"
+            fill="#111"/>
+
+    <circle cx="97" cy="66"
+            r="5"
+            fill="#111"/>
+
+    <!-- mouth -->
+    <path d="M45 100 Q75 125 105 100"
+          stroke="#111"
+          stroke-width="10"
+          fill="none"/>
+
+    <!-- teeth -->
+    <path d="M55 105 L61 116
+             L68 107 L75 118
+             L82 107 L89 116
+             L96 105"
+          fill="white"/>
+
+    <!-- badge -->
+    <circle cx="75" cy="93"
+            r="12"
+            fill="#ffcf32"/>
+</svg>
+`;
+
+const bossImage = makeImage(BOSS_SVG);
+
+
+/* =========================================================
+   SAVE SYSTEM
+========================================================= */
+
+const SAVE_KEY =
+    "super_adventure_4_save";
 
 let saveData = {
     unlockedLevel: 1,
@@ -110,7 +440,8 @@ let saveData = {
 };
 
 try {
-    const saved = localStorage.getItem(SAVE_KEY);
+    const saved =
+        localStorage.getItem(SAVE_KEY);
 
     if (saved) {
         saveData = {
@@ -119,7 +450,7 @@ try {
         };
     }
 } catch (error) {
-    console.warn("تعذر تحميل الحفظ", error);
+    console.warn("تعذر تحميل الحفظ");
 }
 
 function saveGame() {
@@ -129,7 +460,7 @@ function saveGame() {
             JSON.stringify(saveData)
         );
     } catch (error) {
-        console.warn("تعذر حفظ اللعبة", error);
+        console.warn("تعذر حفظ اللعبة");
     }
 }
 
@@ -266,7 +597,6 @@ const LEVELS = [
 ========================================================= */
 
 let currentLevel = 1;
-
 let gameRunning = false;
 let gamePaused = false;
 
@@ -274,7 +604,6 @@ let score = 0;
 let levelCoins = 0;
 let lives = 3;
 
-/* هذا هو الإصلاح المهم */
 let powerType = "عادي";
 
 let cameraX = 0;
@@ -284,6 +613,7 @@ let enemies = [];
 let coins = [];
 let powerUps = [];
 let particles = [];
+let fireballs = [];
 
 let goal = null;
 
@@ -295,11 +625,12 @@ let messageTimeout = null;
 ========================================================= */
 
 const player = {
+
     x: 120,
     y: 300,
 
-    width: 42,
-    height: 62,
+    width: 54,
+    height: 68,
 
     velocityX: 0,
     velocityY: 0,
@@ -319,7 +650,9 @@ const player = {
 
     firePower: 0,
 
-    invincible: 0
+    invincible: 0,
+
+    animation: 0
 };
 
 
@@ -328,9 +661,11 @@ const player = {
 ========================================================= */
 
 const input = {
+
     left: false,
     right: false,
     run: false,
+
     jumpPressed: false,
     firePressed: false
 };
@@ -340,122 +675,163 @@ const input = {
    KEYBOARD
 ========================================================= */
 
-window.addEventListener("keydown", function(event) {
+window.addEventListener(
+    "keydown",
+    function(event) {
 
-    if (
-        event.code === "ArrowLeft" ||
-        event.code === "KeyA"
-    ) {
-        input.left = true;
-    }
-
-    if (
-        event.code === "ArrowRight" ||
-        event.code === "KeyD"
-    ) {
-        input.right = true;
-    }
-
-    if (
-        event.code === "ShiftLeft" ||
-        event.code === "ShiftRight"
-    ) {
-        input.run = true;
-    }
-
-    if (
-        event.code === "ArrowUp" ||
-        event.code === "Space" ||
-        event.code === "KeyW"
-    ) {
-        if (!event.repeat) {
-            input.jumpPressed = true;
+        if (
+            event.code === "ArrowLeft" ||
+            event.code === "KeyA"
+        ) {
+            input.left = true;
+            event.preventDefault();
         }
 
-        event.preventDefault();
+        if (
+            event.code === "ArrowRight" ||
+            event.code === "KeyD"
+        ) {
+            input.right = true;
+            event.preventDefault();
+        }
+
+        if (
+            event.code === "ShiftLeft" ||
+            event.code === "ShiftRight"
+        ) {
+            input.run = true;
+        }
+
+        if (
+            event.code === "ArrowUp" ||
+            event.code === "Space" ||
+            event.code === "KeyW"
+        ) {
+
+            if (!event.repeat) {
+                input.jumpPressed = true;
+            }
+
+            event.preventDefault();
+        }
+
+        if (
+            event.code === "KeyF" ||
+            event.code === "KeyJ"
+        ) {
+            input.firePressed = true;
+        }
+
+        if (event.code === "Escape") {
+            togglePause();
+        }
     }
+);
 
-    if (
-        event.code === "KeyF" ||
-        event.code === "KeyJ"
-    ) {
-        input.firePressed = true;
+
+window.addEventListener(
+    "keyup",
+    function(event) {
+
+        if (
+            event.code === "ArrowLeft" ||
+            event.code === "KeyA"
+        ) {
+            input.left = false;
+        }
+
+        if (
+            event.code === "ArrowRight" ||
+            event.code === "KeyD"
+        ) {
+            input.right = false;
+        }
+
+        if (
+            event.code === "ShiftLeft" ||
+            event.code === "ShiftRight"
+        ) {
+            input.run = false;
+        }
     }
-
-    if (event.code === "Escape") {
-        togglePause();
-    }
-
-});
-
-
-window.addEventListener("keyup", function(event) {
-
-    if (
-        event.code === "ArrowLeft" ||
-        event.code === "KeyA"
-    ) {
-        input.left = false;
-    }
-
-    if (
-        event.code === "ArrowRight" ||
-        event.code === "KeyD"
-    ) {
-        input.right = false;
-    }
-
-    if (
-        event.code === "ShiftLeft" ||
-        event.code === "ShiftRight"
-    ) {
-        input.run = false;
-    }
-
-    if (
-        event.code === "KeyF" ||
-        event.code === "KeyJ"
-    ) {
-        input.firePressed = false;
-    }
-
-});
+);
 
 
 /* =========================================================
-   MOBILE BUTTONS
+   MOBILE CONTROLS
 ========================================================= */
 
-function setupHoldButton(id, property) {
+function setupHoldButton(
+    id,
+    property
+) {
 
-    const button = document.getElementById(id);
+    const button =
+        document.getElementById(id);
 
     if (!button) return;
 
-    const start = function(event) {
+    function start(event) {
 
         event.preventDefault();
 
         input[property] = true;
-    };
 
-    const stop = function(event) {
+        try {
+            button.setPointerCapture(
+                event.pointerId
+            );
+        } catch (e) {}
+    }
+
+    function stop(event) {
 
         event.preventDefault();
 
         input[property] = false;
-    };
+    }
 
-    button.addEventListener("pointerdown", start);
-    button.addEventListener("pointerup", stop);
-    button.addEventListener("pointercancel", stop);
-    button.addEventListener("pointerleave", stop);
+    button.addEventListener(
+        "pointerdown",
+        start
+    );
+
+    button.addEventListener(
+        "pointerup",
+        stop
+    );
+
+    button.addEventListener(
+        "pointercancel",
+        stop
+    );
+
+    button.addEventListener(
+        "pointerleave",
+        stop
+    );
+
+    button.addEventListener(
+        "pointerout",
+        stop
+    );
 }
 
 
-setupHoldButton("btnLeft", "left");
-setupHoldButton("btnRight", "right");
-setupHoldButton("btnRun", "run");
+setupHoldButton(
+    "btnLeft",
+    "left"
+);
+
+setupHoldButton(
+    "btnRight",
+    "right"
+);
+
+setupHoldButton(
+    "btnRun",
+    "run"
+);
 
 
 const jumpButton =
@@ -470,6 +846,12 @@ if (jumpButton) {
             event.preventDefault();
 
             input.jumpPressed = true;
+
+            try {
+                jumpButton.setPointerCapture(
+                    event.pointerId
+                );
+            } catch (e) {}
         }
     );
 }
@@ -485,12 +867,12 @@ let musicTimer = null;
 const musicNotes = [
     261.63,
     329.63,
-    392.00,
+    392,
     329.63,
     293.66,
     349.23,
-    440.00,
-    392.00
+    440,
+    392
 ];
 
 let musicIndex = 0;
@@ -507,7 +889,8 @@ function initAudio() {
                 window.webkitAudioContext;
 
             if (Audio) {
-                audioContext = new Audio();
+                audioContext =
+                    new Audio();
             }
         }
 
@@ -518,11 +901,7 @@ function initAudio() {
             audioContext.resume();
         }
 
-    } catch (error) {
-
-        console.warn("الصوت غير متاح");
-
-    }
+    } catch (error) {}
 }
 
 
@@ -557,23 +936,24 @@ function playTone(
 
         gain.gain.exponentialRampToValueAtTime(
             0.001,
-            audioContext.currentTime + duration
+            audioContext.currentTime +
+            duration
         );
 
         oscillator.connect(gain);
-        gain.connect(audioContext.destination);
+
+        gain.connect(
+            audioContext.destination
+        );
 
         oscillator.start();
 
         oscillator.stop(
-            audioContext.currentTime + duration
+            audioContext.currentTime +
+            duration
         );
 
-    } catch (error) {
-
-        console.warn("تعذر تشغيل الصوت");
-
-    }
+    } catch (error) {}
 }
 
 
@@ -581,31 +961,32 @@ function startMusic() {
 
     if (musicTimer) return;
 
-    musicTimer = setInterval(function() {
-
-        if (
-            gameRunning &&
-            !gamePaused
-        ) {
-
-            playTone(
-                musicNotes[musicIndex],
-                0.11,
-                "triangle",
-                0.012
-            );
-
-            musicIndex++;
+    musicTimer =
+        setInterval(function() {
 
             if (
-                musicIndex >=
-                musicNotes.length
+                gameRunning &&
+                !gamePaused
             ) {
-                musicIndex = 0;
-            }
-        }
 
-    }, 360);
+                playTone(
+                    musicNotes[musicIndex],
+                    0.11,
+                    "triangle",
+                    0.012
+                );
+
+                musicIndex++;
+
+                if (
+                    musicIndex >=
+                    musicNotes.length
+                ) {
+                    musicIndex = 0;
+                }
+            }
+
+        }, 360);
 }
 
 
@@ -638,10 +1019,16 @@ function rectsOverlap(a, b) {
 function getPlayerRect() {
 
     return {
-        x: player.x,
-        y: player.y,
-        width: player.width,
-        height: player.height
+
+        x: player.x + 5,
+
+        y: player.y + 3,
+
+        width:
+            player.width - 10,
+
+        height:
+            player.height - 4
     };
 }
 
@@ -650,7 +1037,9 @@ function getPlayerRect() {
    CREATE LEVEL
 ========================================================= */
 
-function createLevel(levelNumber) {
+function createLevel(
+    levelNumber
+) {
 
     const level =
         LEVELS[levelNumber - 1];
@@ -662,6 +1051,7 @@ function createLevel(levelNumber) {
     coins = [];
     powerUps = [];
     particles = [];
+    fireballs = [];
 
     cameraX = 0;
 
@@ -671,13 +1061,20 @@ function createLevel(levelNumber) {
             450
         );
 
+
     /* الأرض */
 
     platforms.push({
+
         x: 0,
+
         y: groundY,
-        width: level.length + 500,
+
+        width:
+            level.length + 500,
+
         height: 300,
+
         type: "ground"
     });
 
@@ -686,7 +1083,10 @@ function createLevel(levelNumber) {
 
     for (
         let i = 0;
-        i < Math.floor(level.length / 500);
+        i <
+        Math.floor(
+            level.length / 500
+        );
         i++
     ) {
 
@@ -696,13 +1096,18 @@ function createLevel(levelNumber) {
         const y =
             groundY -
             80 -
-            ((i % 3) * 45);
+            (i % 3) * 45;
 
         platforms.push({
+
             x: x,
+
             y: y,
+
             width: 180,
+
             height: 30,
+
             type: "platform"
         });
     }
@@ -712,24 +1117,30 @@ function createLevel(levelNumber) {
 
     for (
         let i = 0;
-        i < Math.floor(level.length / 180);
+        i <
+        Math.floor(
+            level.length / 180
+        );
         i++
     ) {
 
-        const x =
-            300 + i * 180;
-
-        const y =
-            groundY -
-            80 -
-            ((i % 4) * 55);
-
         coins.push({
-            x: x,
-            y: y,
+
+            x:
+                300 + i * 180,
+
+            y:
+                groundY -
+                80 -
+                (i % 4) * 55,
+
             radius: 12,
+
             collected: false,
-            rotation: Math.random() * Math.PI
+
+            rotation:
+                Math.random() *
+                Math.PI
         });
     }
 
@@ -738,14 +1149,23 @@ function createLevel(levelNumber) {
 
     for (
         let i = 0;
-        i < Math.floor(level.length / 1100);
+        i <
+        Math.floor(
+            level.length / 1100
+        );
         i++
     ) {
 
         powerUps.push({
-            x: 850 + i * 1100,
-            y: groundY - 145,
+
+            x:
+                850 + i * 1100,
+
+            y:
+                groundY - 145,
+
             width: 35,
+
             height: 35,
 
             type:
@@ -761,7 +1181,9 @@ function createLevel(levelNumber) {
     /* الأعداء */
 
     const enemyCount =
-        Math.floor(level.length / 400);
+        Math.floor(
+            level.length / 400
+        );
 
     for (
         let i = 0;
@@ -778,18 +1200,23 @@ function createLevel(levelNumber) {
 
             x: enemyX,
 
-            y: groundY - 44,
+            y:
+                groundY - 50,
 
-            width: 44,
-            height: 44,
+            width: 54,
+
+            height: 50,
 
             velocityX:
                 Math.random() < 0.5
                     ? -1.2
                     : 1.2,
 
-            minX: enemyX - 100,
-            maxX: enemyX + 150,
+            minX:
+                enemyX - 100,
+
+            maxX:
+                enemyX + 150,
 
             type:
                 Math.random() < 0.2
@@ -798,7 +1225,9 @@ function createLevel(levelNumber) {
 
             alive: true,
 
-            health: 1
+            health: 1,
+
+            animation: 0
         });
     }
 
@@ -807,24 +1236,32 @@ function createLevel(levelNumber) {
 
     for (
         let i = 0;
-        i < Math.floor(level.difficulty);
+        i <
+        Math.floor(level.difficulty);
         i++
     ) {
 
         enemies.push({
 
-            x: 1200 + i * 1200,
+            x:
+                1200 +
+                i * 1200,
 
             y: 250,
 
-            width: 45,
-            height: 35,
+            width: 58,
+
+            height: 42,
 
             velocityX: 1.5,
 
-            minX: 1000 + i * 1200,
+            minX:
+                1000 +
+                i * 1200,
 
-            maxX: 1450 + i * 1200,
+            maxX:
+                1450 +
+                i * 1200,
 
             type: "fly",
 
@@ -832,35 +1269,47 @@ function createLevel(levelNumber) {
 
             health: 1,
 
-            baseY: 250
+            baseY: 250,
+
+            animation: 0
         });
     }
 
 
     /* Boss */
 
-    if (levelNumber % 3 === 0) {
+    if (
+        levelNumber % 3 === 0
+    ) {
 
         enemies.push({
 
-            x: level.length - 600,
+            x:
+                level.length - 600,
 
-            y: groundY - 105,
+            y:
+                groundY - 125,
 
-            width: 90,
-            height: 105,
+            width: 105,
+
+            height: 125,
 
             velocityX: -1.7,
 
-            minX: level.length - 900,
+            minX:
+                level.length - 900,
 
-            maxX: level.length - 300,
+            maxX:
+                level.length - 300,
 
             type: "boss",
 
             alive: true,
 
-            health: 6 + levelNumber
+            health:
+                6 + levelNumber,
+
+            animation: 0
         });
     }
 
@@ -869,9 +1318,11 @@ function createLevel(levelNumber) {
 
     goal = {
 
-        x: level.length - 130,
+        x:
+            level.length - 130,
 
-        y: groundY - 130,
+        y:
+            groundY - 130,
 
         width: 100,
 
@@ -882,20 +1333,30 @@ function createLevel(levelNumber) {
     /* اللاعب */
 
     player.x = 120;
-    player.y = groundY - player.height;
+
+    player.y =
+        groundY -
+        player.height;
 
     player.velocityX = 0;
+
     player.velocityY = 0;
 
     player.grounded = true;
 
     player.big = false;
 
+    player.width = 54;
+
+    player.height = 68;
+
     player.star = 0;
 
     player.firePower = 0;
 
     player.invincible = 0;
+
+    player.animation = 0;
 }
 
 
@@ -913,7 +1374,8 @@ function startLevel(number) {
     }
 
     if (
-        number > saveData.unlockedLevel
+        number >
+        saveData.unlockedLevel
     ) {
 
         showMessage(
@@ -922,7 +1384,6 @@ function startLevel(number) {
 
         return;
     }
-
 
     initAudio();
 
@@ -933,14 +1394,14 @@ function startLevel(number) {
     levelCoins = 0;
 
     lives =
-        3 + saveData.extraLives;
+        3 +
+        saveData.extraLives;
 
     powerType = "عادي";
 
-    player.star = 0;
-    player.firePower = 0;
-
-    createLevel(currentLevel);
+    createLevel(
+        currentLevel
+    );
 
     gameRunning = true;
 
@@ -954,7 +1415,9 @@ function startLevel(number) {
 
     showMessage(
         "🏁 " +
-        LEVELS[currentLevel - 1].name
+        LEVELS[
+            currentLevel - 1
+        ].name
     );
 }
 
@@ -965,28 +1428,37 @@ function startLevel(number) {
 
 function updatePlayer() {
 
-    if (player.invincible > 0) {
+    if (
+        player.invincible > 0
+    ) {
         player.invincible--;
     }
 
-    if (player.star > 0) {
+    if (
+        player.star > 0
+    ) {
         player.star--;
     }
 
-    if (player.firePower > 0) {
+    if (
+        player.firePower > 0
+    ) {
         player.firePower--;
     }
 
 
     const level =
-        LEVELS[currentLevel - 1];
+        LEVELS[
+            currentLevel - 1
+        ];
 
 
     const speedLimit =
         input.run
             ? 8
             : 5.5 +
-              saveData.speedBoost * 0.5;
+              saveData.speedBoost *
+              0.5;
 
 
     /* الحركة */
@@ -1029,6 +1501,19 @@ function updatePlayer() {
         );
 
 
+    /* Animation */
+
+    if (
+        Math.abs(
+            player.velocityX
+        ) > 0.2
+    ) {
+
+        player.animation +=
+            0.25;
+    }
+
+
     /* القفز */
 
     if (
@@ -1055,7 +1540,8 @@ function updatePlayer() {
     /* الجاذبية */
 
     player.velocityY +=
-        0.62 * level.difficulty;
+        0.62 *
+        level.difficulty;
 
     player.velocityY =
         Math.min(
@@ -1064,11 +1550,14 @@ function updatePlayer() {
         );
 
 
-    const oldY = player.y;
+    const oldY =
+        player.y;
 
-    player.x += player.velocityX;
+    player.x +=
+        player.velocityX;
 
-    player.y += player.velocityY;
+    player.y +=
+        player.velocityY;
 
     player.grounded = false;
 
@@ -1076,12 +1565,14 @@ function updatePlayer() {
     /* حدود العالم */
 
     if (player.x < 0) {
+
         player.x = 0;
+
         player.velocityX = 0;
     }
 
 
-    /* التصادم مع المنصات */
+    /* التصادم */
 
     const playerRect =
         getPlayerRect();
@@ -1092,10 +1583,16 @@ function updatePlayer() {
     ) {
 
         const rect = {
+
             x: platform.x,
+
             y: platform.y,
-            width: platform.width,
-            height: platform.height
+
+            width:
+                platform.width,
+
+            height:
+                platform.height
         };
 
 
@@ -1105,11 +1602,12 @@ function updatePlayer() {
                 rect.x &&
 
             playerRect.x <
-                rect.x + rect.width &&
+                rect.x +
+                rect.width &&
 
             oldY +
                 playerRect.height <=
-                rect.y + 10 &&
+                rect.y + 12 &&
 
             player.y +
                 playerRect.height >=
@@ -1142,17 +1640,9 @@ function updatePlayer() {
     }
 
 
-    /* العملات */
-
     collectCoins();
 
-
-    /* Power Ups */
-
     collectPowerUps();
-
-
-    /* الأعداء */
 
     checkEnemies();
 
@@ -1170,7 +1660,7 @@ function updatePlayer() {
     }
 
 
-    /* الوصول للنهاية */
+    /* النهاية */
 
     if (
         goal &&
@@ -1194,19 +1684,28 @@ function collectCoins() {
     const playerRect =
         getPlayerRect();
 
-    for (const coin of coins) {
+    for (
+        const coin of coins
+    ) {
 
-        if (coin.collected) continue;
+        if (coin.collected)
+            continue;
 
         const rect = {
 
-            x: coin.x - coin.radius,
+            x:
+                coin.x -
+                coin.radius,
 
-            y: coin.y - coin.radius,
+            y:
+                coin.y -
+                coin.radius,
 
-            width: coin.radius * 2,
+            width:
+                coin.radius * 2,
 
-            height: coin.radius * 2
+            height:
+                coin.radius * 2
         };
 
 
@@ -1221,12 +1720,10 @@ function collectCoins() {
 
             levelCoins++;
 
-            const points =
+            score +=
                 saveData.doublePoints > 0
                     ? 200
                     : 100;
-
-            score += points;
 
             playTone(
                 880,
@@ -1255,9 +1752,12 @@ function collectPowerUps() {
     const playerRect =
         getPlayerRect();
 
-    for (const item of powerUps) {
+    for (
+        const item of powerUps
+    ) {
 
-        if (item.collected) continue;
+        if (item.collected)
+            continue;
 
         if (
             rectsOverlap(
@@ -1269,27 +1769,31 @@ function collectPowerUps() {
             item.collected = true;
 
             if (
-                item.type === "mushroom"
+                item.type ===
+                "mushroom"
             ) {
 
                 player.big = true;
 
-                player.width = 48;
-                player.height = 68;
+                player.width = 58;
 
-                powerType = "🍄 كبير";
+                player.height = 76;
+
+                powerType =
+                    "🍄 كبير";
 
                 score += 500;
 
                 showMessage(
-                    "🍄 أصبحت كبيرًا!"
+                    "🍄 قوة البطل!"
                 );
 
             } else {
 
                 player.star = 600;
 
-                powerType = "🌟 نجم";
+                powerType =
+                    "🌟 نجم";
 
                 score += 1000;
 
@@ -1325,16 +1829,24 @@ function checkEnemies() {
     const playerRect =
         getPlayerRect();
 
-    for (const enemy of enemies) {
+    for (
+        const enemy of enemies
+    ) {
 
-        if (!enemy.alive) continue;
-
+        if (!enemy.alive)
+            continue;
 
         const enemyRect = {
+
             x: enemy.x,
+
             y: enemy.y,
-            width: enemy.width,
-            height: enemy.height
+
+            width:
+                enemy.width,
+
+            height:
+                enemy.height
         };
 
 
@@ -1345,17 +1857,17 @@ function checkEnemies() {
             )
         ) {
 
-            /* النجمة تقتل العدو */
+            /* النجمة */
 
-            if (player.star > 0) {
+            if (
+                player.star > 0
+            ) {
 
                 killEnemy(enemy);
 
                 continue;
             }
 
-
-            /* القفز فوق العدو */
 
             const playerBottom =
                 player.y +
@@ -1364,6 +1876,8 @@ function checkEnemies() {
             const enemyTop =
                 enemy.y;
 
+
+            /* القفز فوق العدو */
 
             if (
                 player.velocityY > 0 &&
@@ -1390,21 +1904,27 @@ function killEnemy(enemy) {
 
     enemy.health--;
 
-    if (enemy.health <= 0) {
+    if (
+        enemy.health <= 0
+    ) {
 
         enemy.alive = false;
 
         score +=
-            enemy.type === "boss"
+            enemy.type ===
+            "boss"
                 ? 1000
                 : 200;
 
         createParticles(
             enemy.x +
                 enemy.width / 2,
+
             enemy.y +
                 enemy.height / 2,
+
             18,
+
             "#ff6a3d"
         );
 
@@ -1428,12 +1948,16 @@ function killEnemy(enemy) {
 
 function damagePlayer() {
 
-    if (player.invincible > 0) {
+    if (
+        player.invincible > 0
+    ) {
         return;
     }
 
 
-    if (saveData.shields > 0) {
+    if (
+        saveData.shields > 0
+    ) {
 
         saveData.shields--;
 
@@ -1449,7 +1973,9 @@ function damagePlayer() {
     }
 
 
-    if (player.star > 0) {
+    if (
+        player.star > 0
+    ) {
         return;
     }
 
@@ -1458,8 +1984,9 @@ function damagePlayer() {
 
         player.big = false;
 
-        player.width = 42;
-        player.height = 62;
+        player.width = 54;
+
+        player.height = 68;
 
         powerType = "عادي";
 
@@ -1493,7 +2020,9 @@ function loseLife() {
     );
 
 
-    if (lives <= 0) {
+    if (
+        lives <= 0
+    ) {
 
         gameOver();
 
@@ -1502,13 +2031,16 @@ function loseLife() {
 
 
     const level =
-        LEVELS[currentLevel - 1];
+        LEVELS[
+            currentLevel - 1
+        ];
 
     const groundY =
         Math.max(
             VIEW_H - 120,
             450
         );
+
 
     player.x = 120;
 
@@ -1517,6 +2049,7 @@ function loseLife() {
         player.height;
 
     player.velocityX = 0;
+
     player.velocityY = 0;
 
     player.invincible = 150;
@@ -1534,9 +2067,6 @@ function loseLife() {
 /* =========================================================
    FIREBALL
 ========================================================= */
-
-let fireballs = [];
-
 
 function shootFireball() {
 
@@ -1573,38 +2103,58 @@ function shootFireball() {
 function updateFireballs() {
 
     for (
-        let i = fireballs.length - 1;
+        let i =
+            fireballs.length - 1;
+
         i >= 0;
+
         i--
     ) {
 
         const ball =
             fireballs[i];
 
-        ball.x += ball.velocityX;
+        ball.x +=
+            ball.velocityX;
 
         ball.life--;
 
 
-        if (ball.life <= 0) {
+        if (
+            ball.life <= 0
+        ) {
 
-            fireballs.splice(i, 1);
+            fireballs.splice(
+                i,
+                1
+            );
 
             continue;
         }
 
 
         const rect = {
+
             x: ball.x,
+
             y: ball.y,
-            width: ball.width,
-            height: ball.height
+
+            width:
+                ball.width,
+
+            height:
+                ball.height
         };
 
 
-        for (const enemy of enemies) {
+        for (
+            const enemy of enemies
+        ) {
 
-            if (!enemy.alive) continue;
+            if (
+                !enemy.alive
+            )
+                continue;
 
             if (
                 rectsOverlap(
@@ -1615,11 +2165,16 @@ function updateFireballs() {
 
                 enemy.health -= 2;
 
-                if (enemy.health <= 0) {
+                if (
+                    enemy.health <= 0
+                ) {
                     killEnemy(enemy);
                 }
 
-                fireballs.splice(i, 1);
+                fireballs.splice(
+                    i,
+                    1
+                );
 
                 break;
             }
@@ -1634,31 +2189,46 @@ function updateFireballs() {
 
 function updateEnemies() {
 
-    for (const enemy of enemies) {
+    for (
+        const enemy of enemies
+    ) {
 
-        if (!enemy.alive) continue;
+        if (!enemy.alive)
+            continue;
 
+        enemy.x +=
+            enemy.velocityX;
 
-        enemy.x += enemy.velocityX;
+        enemy.animation +=
+            0.12;
 
 
         if (
-            enemy.x <= enemy.minX ||
-            enemy.x >= enemy.maxX
+            enemy.x <=
+                enemy.minX ||
+
+            enemy.x >=
+                enemy.maxX
         ) {
 
-            enemy.velocityX *= -1;
+            enemy.velocityX *=
+                -1;
         }
 
 
-        if (enemy.type === "fly") {
+        if (
+            enemy.type ===
+            "fly"
+        ) {
 
             enemy.y =
                 enemy.baseY +
                 Math.sin(
-                    performance.now() * 0.003 +
+                    performance.now() *
+                    0.003 +
                     enemy.x
-                ) * 35;
+                ) *
+                35;
         }
     }
 }
@@ -1693,7 +2263,8 @@ function createParticles(
             velocityY:
                 (Math.random() - 0.5) * 5,
 
-            life: 30 +
+            life:
+                30 +
                 Math.random() * 30,
 
             color: color
@@ -1705,24 +2276,37 @@ function createParticles(
 function updateParticles() {
 
     for (
-        let i = particles.length - 1;
+        let i =
+            particles.length - 1;
+
         i >= 0;
+
         i--
     ) {
 
         const p =
             particles[i];
 
-        p.x += p.velocityX;
+        p.x +=
+            p.velocityX;
 
-        p.y += p.velocityY;
+        p.y +=
+            p.velocityY;
 
-        p.velocityY += 0.15;
+        p.velocityY +=
+            0.15;
 
         p.life--;
 
-        if (p.life <= 0) {
-            particles.splice(i, 1);
+
+        if (
+            p.life <= 0
+        ) {
+
+            particles.splice(
+                i,
+                1
+            );
         }
     }
 }
@@ -1744,17 +2328,24 @@ function updateCamera() {
 
 
     const level =
-        LEVELS[currentLevel - 1];
+        LEVELS[
+            currentLevel - 1
+        ];
 
 
     cameraX =
         Math.max(
             0,
+
             Math.min(
                 cameraX,
-                level.length -
+
+                Math.max(
+                    0,
+                    level.length -
                     VIEW_W +
                     200
+                )
             )
         );
 }
@@ -1767,7 +2358,9 @@ function updateCamera() {
 function drawBackground() {
 
     const level =
-        LEVELS[currentLevel - 1];
+        LEVELS[
+            currentLevel - 1
+        ];
 
 
     const gradient =
@@ -1777,6 +2370,7 @@ function drawBackground() {
             0,
             VIEW_H
         );
+
 
     gradient.addColorStop(
         0,
@@ -1788,7 +2382,9 @@ function drawBackground() {
         level.skyBottom
     );
 
-    ctx.fillStyle = gradient;
+
+    ctx.fillStyle =
+        gradient;
 
     ctx.fillRect(
         0,
@@ -1801,7 +2397,7 @@ function drawBackground() {
     /* الشمس */
 
     ctx.fillStyle =
-        "rgba(255,235,130,0.9)";
+        "rgba(255,235,130,.9)";
 
     ctx.beginPath();
 
@@ -1819,7 +2415,8 @@ function drawBackground() {
     /* الجبال */
 
     ctx.fillStyle =
-        "rgba(80,120,140,0.35)";
+        "rgba(80,120,140,.35)";
+
 
     for (
         let i = -1;
@@ -1829,7 +2426,12 @@ function drawBackground() {
 
         const x =
             i * 350 -
-            (cameraX * 0.25 % 350);
+            (
+                cameraX *
+                0.25 %
+                350
+            );
+
 
         ctx.beginPath();
 
@@ -1857,7 +2459,8 @@ function drawBackground() {
     /* السحب */
 
     ctx.fillStyle =
-        "rgba(255,255,255,0.75)";
+        "rgba(255,255,255,.75)";
+
 
     for (
         let i = 0;
@@ -1867,18 +2470,28 @@ function drawBackground() {
 
         const x =
             i * 300 -
-            (cameraX * 0.12 % 300);
+            (
+                cameraX *
+                0.12 %
+                300
+            );
 
         const y =
             80 +
             (i % 3) * 55;
 
-        drawCloud(x, y);
+        drawCloud(
+            x,
+            y
+        );
     }
 }
 
 
-function drawCloud(x, y) {
+function drawCloud(
+    x,
+    y
+) {
 
     ctx.beginPath();
 
@@ -1924,12 +2537,17 @@ function drawWorld() {
     );
 
 
-    /* المنصات */
+    const level =
+        LEVELS[
+            currentLevel - 1
+        ];
 
-    for (const platform of platforms) {
 
-        const level =
-            LEVELS[currentLevel - 1];
+    /* الأرض والمنصات */
+
+    for (
+        const platform of platforms
+    ) {
 
         ctx.fillStyle =
             level.ground;
@@ -1959,7 +2577,7 @@ function drawWorld() {
 
 
             ctx.fillStyle =
-                "rgba(255,255,255,0.15)";
+                "rgba(255,255,255,.15)";
 
             ctx.fillRect(
                 platform.x,
@@ -1971,37 +2589,17 @@ function drawWorld() {
     }
 
 
-    /* العملات */
-
     drawCoins();
-
-
-    /* Power Ups */
 
     drawPowerUps();
 
-
-    /* الأعداء */
-
     drawEnemies();
-
-
-    /* النهاية */
 
     drawGoal();
 
-
-    /* Fireballs */
-
     drawFireballs();
 
-
-    /* اللاعب */
-
     drawPlayer();
-
-
-    /* particles */
 
     drawParticles();
 
@@ -2011,14 +2609,20 @@ function drawWorld() {
 
 
 /* =========================================================
-   DRAW COINS
+   COINS DRAW
 ========================================================= */
 
 function drawCoins() {
 
-    for (const coin of coins) {
+    for (
+        const coin of coins
+    ) {
 
-        if (coin.collected) continue;
+        if (
+            coin.collected
+        )
+            continue;
+
 
         const scale =
             0.75 +
@@ -2031,6 +2635,7 @@ function drawCoins() {
             ) *
             0.25;
 
+
         ctx.save();
 
         ctx.translate(
@@ -2042,6 +2647,7 @@ function drawCoins() {
             scale,
             1
         );
+
 
         ctx.fillStyle =
             "#ffd52e";
@@ -2058,6 +2664,7 @@ function drawCoins() {
 
         ctx.fill();
 
+
         ctx.strokeStyle =
             "#c88d00";
 
@@ -2065,11 +2672,12 @@ function drawCoins() {
 
         ctx.stroke();
 
+
         ctx.fillStyle =
             "#fff3a0";
 
         ctx.font =
-            "bold 16px Arial";
+            "bold 15px Arial";
 
         ctx.textAlign =
             "center";
@@ -2083,20 +2691,27 @@ function drawCoins() {
             1
         );
 
+
         ctx.restore();
     }
 }
 
 
 /* =========================================================
-   DRAW POWER UPS
+   POWER UPS DRAW
 ========================================================= */
 
 function drawPowerUps() {
 
-    for (const item of powerUps) {
+    for (
+        const item of powerUps
+    ) {
 
-        if (item.collected) continue;
+        if (
+            item.collected
+        )
+            continue;
+
 
         ctx.save();
 
@@ -2107,7 +2722,8 @@ function drawPowerUps() {
 
 
         if (
-            item.type === "mushroom"
+            item.type ===
+            "mushroom"
         ) {
 
             ctx.fillStyle =
@@ -2124,6 +2740,7 @@ function drawPowerUps() {
             );
 
             ctx.fill();
+
 
             ctx.fillStyle =
                 "white";
@@ -2148,6 +2765,7 @@ function drawPowerUps() {
 
             ctx.fill();
 
+
             ctx.fillStyle =
                 "#f5d9a5";
 
@@ -2168,6 +2786,7 @@ function drawPowerUps() {
             );
         }
 
+
         ctx.restore();
     }
 }
@@ -2180,9 +2799,11 @@ function drawStar(
     color
 ) {
 
-    ctx.fillStyle = color;
+    ctx.fillStyle =
+        color;
 
     ctx.beginPath();
+
 
     for (
         let i = 0;
@@ -2201,18 +2822,31 @@ function drawStar(
 
         const px =
             x +
-            Math.cos(angle) * r;
+            Math.cos(angle) *
+            r;
 
         const py =
             y +
-            Math.sin(angle) * r;
+            Math.sin(angle) *
+            r;
+
 
         if (i === 0) {
-            ctx.moveTo(px, py);
+
+            ctx.moveTo(
+                px,
+                py
+            );
+
         } else {
-            ctx.lineTo(px, py);
+
+            ctx.lineTo(
+                px,
+                py
+            );
         }
     }
+
 
     ctx.closePath();
 
@@ -2221,187 +2855,98 @@ function drawStar(
 
 
 /* =========================================================
-   DRAW ENEMIES
+   ENEMY DRAW
 ========================================================= */
 
 function drawEnemies() {
 
-    for (const enemy of enemies) {
+    for (
+        const enemy of enemies
+    ) {
 
-        if (!enemy.alive) continue;
+        if (!enemy.alive)
+            continue;
+
+
+        let image =
+            enemyImage;
+
+        if (
+            enemy.type ===
+            "fly"
+        ) {
+            image =
+                flyImage;
+        }
+
+        if (
+            enemy.type ===
+            "boss"
+        ) {
+            image =
+                bossImage;
+        }
+
 
         ctx.save();
 
+
+        const bounce =
+            Math.sin(
+                enemy.animation *
+                8
+            ) *
+            2;
+
+
         ctx.translate(
             enemy.x +
-                enemy.width / 2,
+            enemy.width / 2,
+
             enemy.y +
-                enemy.height / 2
+            enemy.height / 2 +
+            bounce
         );
 
 
         if (
-            enemy.type === "boss"
+            enemy.velocityX < 0
+        ) {
+            ctx.scale(
+                -1,
+                1
+            );
+        }
+
+
+        if (
+            enemy.type ===
+            "boss"
         ) {
 
-            ctx.fillStyle =
-                "#7a1824";
+            ctx.drawImage(
+                image,
 
-            ctx.fillRect(
-                -45,
-                -52,
-                90,
-                105
+                -enemy.width / 2,
+                -enemy.height / 2,
+
+                enemy.width,
+                enemy.height
             );
-
-            ctx.fillStyle =
-                "#e6b24b";
-
-            ctx.fillRect(
-                -30,
-                -35,
-                60,
-                20
-            );
-
-            ctx.fillStyle =
-                "#ff4444";
-
-            ctx.beginPath();
-
-            ctx.arc(
-                -18,
-                -5,
-                7,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.arc(
-                18,
-                -5,
-                7,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
-
-        } else if (
-            enemy.type === "fly"
-        ) {
-
-            ctx.fillStyle =
-                "#6d2bbf";
-
-            ctx.beginPath();
-
-            ctx.ellipse(
-                0,
-                5,
-                21,
-                15,
-                0,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
-
-            ctx.fillStyle =
-                "white";
-
-            ctx.beginPath();
-
-            ctx.ellipse(
-                -22,
-                0,
-                20,
-                8,
-                -0.2,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.ellipse(
-                22,
-                0,
-                20,
-                8,
-                0.2,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
 
         } else {
 
-            ctx.fillStyle =
-                enemy.type === "fast"
-                    ? "#d33"
-                    : "#8b4b25";
+            ctx.drawImage(
+                image,
 
-            ctx.beginPath();
+                -enemy.width / 2,
+                -enemy.height / 2,
 
-            ctx.roundRect(
-                -22,
-                -18,
-                44,
-                38,
-                12
+                enemy.width,
+                enemy.height
             );
-
-            ctx.fill();
-
-
-            ctx.fillStyle =
-                "white";
-
-            ctx.beginPath();
-
-            ctx.arc(
-                -8,
-                -5,
-                6,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.arc(
-                8,
-                -5,
-                6,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
-
-
-            ctx.fillStyle =
-                "#111";
-
-            ctx.beginPath();
-
-            ctx.arc(
-                -8,
-                -5,
-                2,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.arc(
-                8,
-                -5,
-                2,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
         }
+
 
         ctx.restore();
     }
@@ -2409,12 +2954,14 @@ function drawEnemies() {
 
 
 /* =========================================================
-   DRAW GOAL
+   GOAL
 ========================================================= */
 
 function drawGoal() {
 
-    if (!goal) return;
+    if (!goal)
+        return;
+
 
     ctx.fillStyle =
         "#eeeeee";
@@ -2425,6 +2972,7 @@ function drawGoal() {
         8,
         goal.height
     );
+
 
     ctx.fillStyle =
         "#ff3344";
@@ -2450,6 +2998,7 @@ function drawGoal() {
 
     ctx.fill();
 
+
     ctx.fillStyle =
         "#f5c542";
 
@@ -2468,7 +3017,7 @@ function drawGoal() {
 
 
 /* =========================================================
-   DRAW PLAYER
+   PLAYER DRAW - NEW ORIGINAL IMAGE
 ========================================================= */
 
 function drawPlayer() {
@@ -2485,12 +3034,31 @@ function drawPlayer() {
 
     ctx.save();
 
+
+    const walking =
+        Math.abs(
+            player.velocityX
+        ) > 0.2;
+
+
+    const bounce =
+        walking &&
+        player.grounded
+            ? Math.sin(
+                player.animation
+            ) * 3
+            : 0;
+
+
     ctx.translate(
         player.x +
-            player.width / 2,
+        player.width / 2,
+
         player.y +
-            player.height / 2
+        player.height / 2 +
+        bounce
     );
+
 
     ctx.scale(
         player.facing,
@@ -2498,150 +3066,33 @@ function drawPlayer() {
     );
 
 
-    /* جسم */
+    const imageWidth =
+        player.width *
+        1.35;
 
-    ctx.fillStyle =
-        "#e53935";
+    const imageHeight =
+        player.height *
+        1.35;
 
-    ctx.fillRect(
-        -18,
-        -30,
-        36,
-        20
+
+    ctx.drawImage(
+        heroImage,
+
+        -imageWidth / 2,
+
+        -imageHeight / 2,
+
+        imageWidth,
+
+        imageHeight
     );
 
 
-    /* الوجه */
+    /* نجمة */
 
-    ctx.fillStyle =
-        "#f4c49b";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        0,
-        -8,
-        18,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    /* الشعر */
-
-    ctx.fillStyle =
-        "#4a2b1b";
-
-    ctx.fillRect(
-        -17,
-        -20,
-        34,
-        8
-    );
-
-
-    /* القبعة */
-
-    ctx.fillStyle =
-        "#d82222";
-
-    ctx.fillRect(
-        -21,
-        -28,
-        42,
-        8
-    );
-
-    ctx.fillRect(
-        -8,
-        -37,
-        25,
-        10
-    );
-
-
-    /* العين */
-
-    ctx.fillStyle =
-        "#111";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        8,
-        -9,
-        3,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    /* الملابس */
-
-    ctx.fillStyle =
-        "#2465d6";
-
-    ctx.fillRect(
-        -18,
-        -2,
-        36,
-        25
-    );
-
-
-    /* اليدان */
-
-    ctx.fillStyle =
-        "#f4c49b";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        -22,
-        5,
-        7,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.arc(
-        22,
-        5,
-        7,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    /* الأرجل */
-
-    ctx.fillStyle =
-        "#573322";
-
-    ctx.fillRect(
-        -17,
-        22,
-        13,
-        15
-    );
-
-    ctx.fillRect(
-        4,
-        22,
-        13,
-        15
-    );
-
-
-    /* النجمة */
-
-    if (player.star > 0) {
+    if (
+        player.star > 0
+    ) {
 
         ctx.strokeStyle =
             "#ffe044";
@@ -2653,7 +3104,7 @@ function drawPlayer() {
         ctx.arc(
             0,
             0,
-            35,
+            42,
             0,
             Math.PI * 2
         );
@@ -2667,12 +3118,14 @@ function drawPlayer() {
 
 
 /* =========================================================
-   DRAW FIREBALLS
+   FIREBALL DRAW
 ========================================================= */
 
 function drawFireballs() {
 
-    for (const ball of fireballs) {
+    for (
+        const ball of fireballs
+    ) {
 
         ctx.fillStyle =
             "#ff6a20";
@@ -2688,6 +3141,7 @@ function drawFireballs() {
         );
 
         ctx.fill();
+
 
         ctx.fillStyle =
             "#fff4a0";
@@ -2708,12 +3162,14 @@ function drawFireballs() {
 
 
 /* =========================================================
-   DRAW PARTICLES
+   PARTICLES DRAW
 ========================================================= */
 
 function drawParticles() {
 
-    for (const p of particles) {
+    for (
+        const p of particles
+    ) {
 
         ctx.globalAlpha =
             Math.max(
@@ -2786,11 +3242,14 @@ function gameOver() {
 
 function finishLevel() {
 
-    if (!gameRunning) return;
+    if (!gameRunning)
+        return;
+
 
     gameRunning = false;
 
     stopMusic();
+
 
     playTone(
         900,
@@ -2820,6 +3279,7 @@ function finishLevel() {
         saveData.unlockedLevel =
             Math.max(
                 saveData.unlockedLevel,
+
                 currentLevel + 1
             );
     }
@@ -2828,9 +3288,11 @@ function finishLevel() {
     saveData.totalCoins +=
         levelCoins;
 
+
     saveData.bestScore =
         Math.max(
             saveData.bestScore,
+
             Math.floor(score)
         );
 
@@ -2856,23 +3318,30 @@ function finishLevel() {
 
 function updateHUD() {
 
-    if (!ui.lives) return;
+    if (!ui.lives)
+        return;
+
 
     ui.lives.textContent =
         lives;
+
 
     ui.coins.textContent =
         levelCoins +
         saveData.totalCoins;
 
+
     ui.score.textContent =
         Math.floor(score);
+
 
     ui.level.textContent =
         currentLevel;
 
 
-    if (player.star > 0) {
+    if (
+        player.star > 0
+    ) {
 
         ui.power.textContent =
             "🌟 نجم";
@@ -2889,7 +3358,7 @@ function updateHUD() {
     ) {
 
         ui.power.textContent =
-            "🍄 كبير";
+            "⭐ قوي";
 
     } else {
 
@@ -2909,7 +3378,9 @@ function updateHUD() {
 
 function showMessage(text) {
 
-    if (!ui.message) return;
+    if (!ui.message)
+        return;
+
 
     ui.message.textContent =
         text;
@@ -2924,12 +3395,15 @@ function showMessage(text) {
 
 
     messageTimeout =
-        setTimeout(function() {
+        setTimeout(
+            function() {
 
-            ui.message.style.display =
-                "none";
+                ui.message.style.display =
+                    "none";
 
-        }, 1700);
+            },
+            1700
+        );
 }
 
 
@@ -2940,13 +3414,17 @@ function showMessage(text) {
 function hideScreens() {
 
     document
-        .querySelectorAll(".screen")
-        .forEach(function(screen) {
+        .querySelectorAll(
+            ".screen"
+        )
+        .forEach(
+            function(screen) {
 
-            screen.classList.add(
-                "hidden"
-            );
-        });
+                screen.classList.add(
+                    "hidden"
+                );
+            }
+        );
 }
 
 
@@ -2956,10 +3434,13 @@ function hideScreens() {
 
 function togglePause() {
 
-    if (!gameRunning) return;
+    if (!gameRunning)
+        return;
+
 
     gamePaused =
         !gamePaused;
+
 
     if (gamePaused) {
 
@@ -2982,7 +3463,8 @@ function togglePause() {
 
 function renderLevelMap() {
 
-    ui.levelList.innerHTML = "";
+    ui.levelList.innerHTML =
+        "";
 
 
     LEVELS.forEach(
@@ -2990,6 +3472,7 @@ function renderLevelMap() {
 
             const number =
                 index + 1;
+
 
             const button =
                 document.createElement(
@@ -3018,7 +3501,8 @@ function renderLevelMap() {
                     "locked"
                 );
 
-                button.disabled = true;
+                button.disabled =
+                    true;
 
                 button.textContent =
                     "🔒 " +
@@ -3060,13 +3544,14 @@ function renderLevelMap() {
 
 
 /* =========================================================
-   MENU BUTTONS
+   MAIN MENU BUTTONS
 ========================================================= */
 
 const startButton =
     document.getElementById(
         "startGame"
     );
+
 
 if (startButton) {
 
@@ -3075,6 +3560,8 @@ if (startButton) {
         function(event) {
 
             event.preventDefault();
+
+            initAudio();
 
             startLevel(
                 Math.min(
@@ -3091,6 +3578,7 @@ const mapButton =
     document.getElementById(
         "openMap"
     );
+
 
 if (mapButton) {
 
@@ -3117,6 +3605,7 @@ const shopButton =
         "openShop"
     );
 
+
 if (shopButton) {
 
     shopButton.addEventListener(
@@ -3142,6 +3631,7 @@ const helpButton =
         "openHelp"
     );
 
+
 if (helpButton) {
 
     helpButton.addEventListener(
@@ -3165,21 +3655,25 @@ if (helpButton) {
 ========================================================= */
 
 document
-    .querySelectorAll(".backButton")
-    .forEach(function(button) {
+    .querySelectorAll(
+        ".backButton"
+    )
+    .forEach(
+        function(button) {
 
-        button.addEventListener(
-            "click",
-            function() {
+            button.addEventListener(
+                "click",
+                function() {
 
-                hideScreens();
+                    hideScreens();
 
-                ui.mainMenu.classList.remove(
-                    "hidden"
-                );
-            }
-        );
-    });
+                    ui.mainMenu.classList.remove(
+                        "hidden"
+                    );
+                }
+            );
+        }
+    );
 
 
 /* =========================================================
@@ -3190,6 +3684,7 @@ const retryButton =
     document.getElementById(
         "retryGame"
     );
+
 
 if (retryButton) {
 
@@ -3209,6 +3704,7 @@ const homeButton =
     document.getElementById(
         "goHome"
     );
+
 
 if (homeButton) {
 
@@ -3238,6 +3734,7 @@ const nextButton =
     document.getElementById(
         "nextLevel"
     );
+
 
 if (nextButton) {
 
@@ -3272,6 +3769,7 @@ const winHomeButton =
         "winHome"
     );
 
+
 if (winHomeButton) {
 
     winHomeButton.addEventListener(
@@ -3297,114 +3795,111 @@ if (winHomeButton) {
 ========================================================= */
 
 document
-    .querySelectorAll(".shop-item")
-    .forEach(function(button) {
+    .querySelectorAll(
+        ".shop-item"
+    )
+    .forEach(
+        function(button) {
 
-        button.addEventListener(
-            "click",
-            function() {
+            button.addEventListener(
+                "click",
+                function() {
 
-                const item =
-                    button.dataset.item;
-
-
-                const prices = {
-
-                    life: 20,
-
-                    shield: 30,
-
-                    double: 40,
-
-                    speed: 50
-                };
+                    const item =
+                        button.dataset.item;
 
 
-                const price =
-                    prices[item];
+                    const prices = {
+
+                        life: 20,
+
+                        shield: 30,
+
+                        double: 40,
+
+                        speed: 50
+                    };
 
 
-                if (
-                    saveData.totalCoins <
-                    price
-                ) {
+                    const price =
+                        prices[item];
 
-                    showMessage(
-                        "❌ لا توجد عملات كافية"
+
+                    if (
+                        saveData.totalCoins <
+                        price
+                    ) {
+
+                        showMessage(
+                            "❌ لا توجد عملات كافية"
+                        );
+
+                        return;
+                    }
+
+
+                    saveData.totalCoins -=
+                        price;
+
+
+                    switch (item) {
+
+                        case "life":
+
+                            saveData.extraLives++;
+
+                            break;
+
+
+                        case "shield":
+
+                            saveData.shields++;
+
+                            break;
+
+
+                        case "double":
+
+                            saveData.doublePoints++;
+
+                            break;
+
+
+                        case "speed":
+
+                            saveData.speedBoost++;
+
+                            break;
+                    }
+
+
+                    saveGame();
+
+                    updateHUD();
+
+
+                    playTone(
+                        800,
+                        0.12,
+                        "triangle",
+                        0.04
                     );
 
-                    return;
+
+                    showMessage(
+                        "✅ تم الشراء!"
+                    );
                 }
-
-
-                saveData.totalCoins -=
-                    price;
-
-
-                switch (item) {
-
-                    case "life":
-
-                        saveData.extraLives++;
-
-                        break;
-
-
-                    case "shield":
-
-                        saveData.shields++;
-
-                        break;
-
-
-                    case "double":
-
-                        saveData.doublePoints++;
-
-                        break;
-
-
-                    case "speed":
-
-                        saveData.speedBoost++;
-
-                        break;
-                }
-
-
-                saveGame();
-
-                updateHUD();
-
-                playTone(
-                    800,
-                    0.12,
-                    "triangle",
-                    0.04
-                );
-
-
-                showMessage(
-                    "✅ تم الشراء!"
-                );
-            }
-        );
-    });
+            );
+        }
+    );
 
 
 /* =========================================================
    GAME LOOP
 ========================================================= */
 
-let lastTime =
-    performance.now();
-
-
-function gameLoop(currentTime) {
-
-    lastTime =
-        currentTime;
-
+function gameLoop() {
 
     if (
         gameRunning &&
@@ -3446,6 +3941,4 @@ updateHUD();
 
 createLevel(1);
 
-gameLoop(
-    performance.now()
-);
+gameLoop();
